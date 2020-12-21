@@ -11,7 +11,7 @@ Login to each worker instance using the `az` command to find its public IP and s
 
 ```shell
 WORKER="worker-0"
-PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n ${WORKER}-pip --query "ipAddress" -otsv)
 
 ssh kuberoot@${PUBLIC_IP_ADDRESS}
@@ -293,7 +293,7 @@ Login to one of the controller nodes:
 
 ```shell
 CONTROLLER="controller-0"
-PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n ${CONTROLLER}-pip --query "ipAddress" -otsv)
 
 ssh kuberoot@${PUBLIC_IP_ADDRESS}

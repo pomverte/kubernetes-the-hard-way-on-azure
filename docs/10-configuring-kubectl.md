@@ -11,7 +11,7 @@ Each kubeconfig requires a Kubernetes API Server to connect to. To support high 
 Retrieve the `kubernetes-the-hard-way` static IP address:
 
 ```shell
-KUBERNETES_PUBLIC_ADDRESS=$(az network public-ip show -g kubernetes \
+KUBERNETES_PUBLIC_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n kubernetes-pip --query ipAddress -otsv)
 ```
 

@@ -8,7 +8,7 @@ The commands in this lab must be run on each controller instance: `controller-0`
 
 ```shell
 CONTROLLER="controller-0"
-PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n ${CONTROLLER}-pip --query "ipAddress" -otsv)
 
 ssh kuberoot@${PUBLIC_IP_ADDRESS}

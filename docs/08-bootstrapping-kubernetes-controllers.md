@@ -8,7 +8,7 @@ The commands in this lab must be run on each controller instance: `controller-0`
 
 ```shell
 CONTROLLER="controller-0"
-PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n ${CONTROLLER}-pip --query "ipAddress" -otsv)
 
 ssh kuberoot@${PUBLIC_IP_ADDRESS}
@@ -228,7 +228,7 @@ In this section you will configure RBAC permissions to allow the Kubernetes API 
 
 ```shell
 CONTROLLER="controller-0"
-PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n ${CONTROLLER}-pip --query "ipAddress" -otsv)
 
 ssh kuberoot@${PUBLIC_IP_ADDRESS}
@@ -290,7 +290,7 @@ In this section you will provision an external load balancer to front the Kubern
 
 Create the load balancer health probe as a pre-requesite for the lb rule that follows.
 ```shell
-az network lb probe create -g kubernetes \
+az network lb probe create -g ${RESOURCE_GROUP} \
   --lb-name kubernetes-lb \
   --name kubernetes-apiserver-probe \
   --port 6443 \
@@ -300,7 +300,7 @@ az network lb probe create -g kubernetes \
 Create the external load balancer network resources:
 
 ```shell
-az network lb rule create -g kubernetes \
+az network lb rule create -g ${RESOURCE_GROUP} \
   -n kubernetes-apiserver-rule \
   --protocol tcp \
   --lb-name kubernetes-lb \
@@ -316,7 +316,7 @@ az network lb rule create -g kubernetes \
 Retrieve the `kubernetes-the-hard-way` static IP address:
 
 ```shell
-KUBERNETES_PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+KUBERNETES_PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n kubernetes-pip --query ipAddress -otsv)
 ```
 

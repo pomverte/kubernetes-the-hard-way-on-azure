@@ -138,10 +138,10 @@ cat > ${instance}-csr.json <<EOF
 }
 EOF
 
-EXTERNAL_IP=$(az network public-ip show -g kubernetes \
+EXTERNAL_IP=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n kubernetes-pip --query ipAddress -o tsv)
 
-INTERNAL_IP=$(az vm show -d -n ${instance} -g kubernetes --query privateIps -o tsv)
+INTERNAL_IP=$(az vm show -d -n ${instance} -g ${RESOURCE_GROUP} --query privateIps -o tsv)
 
 cfssl gencert \
   -ca=ca.pem \
@@ -298,7 +298,7 @@ The `kubernetes-the-hard-way` static IP address will be included in the list of 
 Retrieve the `kubernetes-the-hard-way` static IP address:
 
 ```shell
-KUBERNETES_PUBLIC_ADDRESS=$(az network public-ip show -g kubernetes \
+KUBERNETES_PUBLIC_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n kubernetes-pip --query "ipAddress" -o tsv)
 ```
 
@@ -398,7 +398,7 @@ Copy the appropriate certificates and private keys to each worker instance:
 
 ```shell
 for instance in worker-0 worker-1; do
-  PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+  PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
     -n ${instance}-pip --query "ipAddress" -o tsv)
 
   scp -o StrictHostKeyChecking=no ca.pem ${instance}-key.pem ${instance}.pem kuberoot@${PUBLIC_IP_ADDRESS}:~/
@@ -409,7 +409,7 @@ Copy the appropriate certificates and private keys to each controller instance:
 
 ```shell
 for instance in controller-0 controller-1 controller-2; do
-  PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+  PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
     -n ${instance}-pip --query "ipAddress" -o tsv)
 
   scp -o StrictHostKeyChecking=no ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \

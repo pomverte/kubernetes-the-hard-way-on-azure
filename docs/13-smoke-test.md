@@ -17,7 +17,7 @@ Print a hexdump of the `kubernetes-the-hard-way` secret stored in etcd:
 
 ```shell
 CONTROLLER="controller-0"
-PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n ${CONTROLLER}-pip --query "ipAddress" -otsv)
 
 ssh kuberoot@${PUBLIC_IP_ADDRESS} \
@@ -182,7 +182,7 @@ NODE_PORT=$(kubectl get svc nginx \
 Create a firewall rule that allows remote access to the `nginx` node port:
 
 ```shell
-az network nsg rule create -g kubernetes \
+az network nsg rule create -g ${RESOURCE_GROUP} \
   -n kubernetes-allow-nginx \
   --access allow \
   --destination-address-prefix '*' \
@@ -198,7 +198,7 @@ az network nsg rule create -g kubernetes \
 Retrieve the external IP address of a worker instance:
 
 ```shell
-EXTERNAL_IP=$(az network public-ip show -g kubernetes \
+EXTERNAL_IP=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n worker-0-pip --query "ipAddress" -otsv)
 ```
 

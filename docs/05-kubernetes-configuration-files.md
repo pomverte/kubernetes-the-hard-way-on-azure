@@ -13,7 +13,7 @@ Each kubeconfig requires a Kubernetes API Server to connect to. To support high 
 Retrieve the `kubernetes-the-hard-way` static IP address:
 
 ```shell
-KUBERNETES_PUBLIC_ADDRESS=$(az network public-ip show -g kubernetes \
+KUBERNETES_PUBLIC_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
   -n kubernetes-pip --query "ipAddress" -otsv)
 ```
 
@@ -195,7 +195,7 @@ Copy the appropriate `kubelet` and `kube-proxy` kubeconfig files to each worker 
 
 ```shell
 for instance in worker-0 worker-1; do
-  PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+  PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
     -n ${instance}-pip --query "ipAddress" -otsv)
 
   scp ${instance}.kubeconfig kube-proxy.kubeconfig kuberoot@${PUBLIC_IP_ADDRESS}:~/
@@ -206,7 +206,7 @@ Copy the appropriate `kube-controller-manager` and `kube-scheduler` kubeconfig f
 
 ```shell
 for instance in controller-0 controller-1 controller-2; do
-  PUBLIC_IP_ADDRESS=$(az network public-ip show -g kubernetes \
+  PUBLIC_IP_ADDRESS=$(az network public-ip show -g ${RESOURCE_GROUP} \
     -n ${instance}-pip --query "ipAddress" -otsv)
 
   scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig kuberoot@${PUBLIC_IP_ADDRESS}:~/

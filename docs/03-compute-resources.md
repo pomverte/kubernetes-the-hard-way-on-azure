@@ -17,7 +17,7 @@ In this section a dedicated [Virtual Network](https://docs.microsoft.com/azure/v
 Create the `kubernetes-vnet` custom VNet network with a subnet `kubernetes` provisioned with an IP address range large enough to assign a private IP address to each node in the Kubernetes cluster.:
 
 ```shell
-az network vnet create -g kubernetes \
+az network vnet create -g ${RESOURCE_GROUP} \
   -n kubernetes-vnet \
   --address-prefix 10.240.0.0/24 \
   --subnet-name kubernetes-subnet
@@ -30,11 +30,11 @@ az network vnet create -g kubernetes \
 Create a firewall ([Network Security Group](https://docs.microsoft.com/azure/virtual-network/virtual-network-vnet-plan-design-arm#security)) and assign it to the subnet:
 
 ```shell
-az network nsg create -g kubernetes -n kubernetes-nsg
+az network nsg create -g ${RESOURCE_GROUP} -n kubernetes-nsg
 ```
 
 ```shell
-az network vnet subnet update -g kubernetes \
+az network vnet subnet update -g ${RESOURCE_GROUP} \
   -n kubernetes-subnet \
   --vnet-name kubernetes-vnet \
   --network-security-group kubernetes-nsg
@@ -43,7 +43,7 @@ az network vnet subnet update -g kubernetes \
 Create a firewall rule that allows external SSH and HTTPS:
 
 ```shell
-az network nsg rule create -g kubernetes \
+az network nsg rule create -g ${RESOURCE_GROUP} \
   -n kubernetes-allow-ssh \
   --access allow \
   --destination-address-prefix '*' \
@@ -57,7 +57,7 @@ az network nsg rule create -g kubernetes \
 ```
 
 ```shell
-az network nsg rule create -g kubernetes \
+az network nsg rule create -g ${RESOURCE_GROUP} \
   -n kubernetes-allow-api-server \
   --access allow \
   --destination-address-prefix '*' \
@@ -75,7 +75,7 @@ az network nsg rule create -g kubernetes \
 List the firewall rules in the `kubernetes-vnet` VNet network:
 
 ```shell
-az network nsg rule list -g kubernetes --nsg-name kubernetes-nsg --query "[].{Name:name, \
+az network nsg rule list -g ${RESOURCE_GROUP} --nsg-name kubernetes-nsg --query "[].{Name:name, \
   Direction:direction, Priority:priority, Port:destinationPortRange}" -o table
 ```
 
@@ -93,7 +93,7 @@ kubernetes-allow-api-server  Inbound            1001    6443
 Allocate a static IP address that will be attached to the external load balancer fronting the Kubernetes API Servers:
 
 ```shell
-az network lb create -g kubernetes \
+az network lb create -g ${RESOURCE_GROUP} \
   -n kubernetes-lb \
   --backend-pool-name kubernetes-lb-pool \
   --public-ip-address kubernetes-pip \
@@ -134,16 +134,16 @@ UBUNTULTS="Canonical:UbuntuServer:18.04-LTS:18.04.202002180"
 Create two compute instances which will host the Kubernetes control plane in `controller-as` [Availability Set](https://docs.microsoft.com/azure/virtual-machines/linux/tutorial-availability-sets#availability-set-overview):
 
 ```shell
-az vm availability-set create -g kubernetes -n controller-as
+az vm availability-set create -g ${RESOURCE_GROUP} -n controller-as
 ```
 
 ```shell
 for i in 0 1 2; do
     echo "[Controller ${i}] Creating public IP..."
-    az network public-ip create -n controller-${i}-pip -g kubernetes > /dev/null
+    az network public-ip create -n controller-${i}-pip -g ${RESOURCE_GROUP} > /dev/null
 
     echo "[Controller ${i}] Creating NIC..."
-    az network nic create -g kubernetes \
+    az network nic create -g ${RESOURCE_GROUP} \
         -n controller-${i}-nic \
         --private-ip-address 10.240.0.1${i} \
         --public-ip-address controller-${i}-pip \
@@ -154,7 +154,7 @@ for i in 0 1 2; do
         --lb-address-pools kubernetes-lb-pool > /dev/null
 
     echo "[Controller ${i}] Creating VM..."
-    az vm create -g kubernetes \
+    az vm create -g ${RESOURCE_GROUP} \
         -n controller-${i} \
         --image ${UBUNTULTS} \
         --nics controller-${i}-nic \
@@ -174,16 +174,16 @@ Each worker instance requires a pod subnet allocation from the Kubernetes cluste
 Create two compute instances which will host the Kubernetes worker nodes in `worker-as` Availability Set:
 
 ```shell
-az vm availability-set create -g kubernetes -n worker-as
+az vm availability-set create -g ${RESOURCE_GROUP} -n worker-as
 ```
 
 ```shell
 for i in 0 1; do
     echo "[Worker ${i}] Creating public IP..."
-    az network public-ip create -n worker-${i}-pip -g kubernetes > /dev/null
+    az network public-ip create -n worker-${i}-pip -g ${RESOURCE_GROUP} > /dev/null
 
     echo "[Worker ${i}] Creating NIC..."
-    az network nic create -g kubernetes \
+    az network nic create -g ${RESOURCE_GROUP} \
         -n worker-${i}-nic \
         --private-ip-address 10.240.0.2${i} \
         --public-ip-address worker-${i}-pip \
@@ -192,7 +192,7 @@ for i in 0 1; do
         --ip-forwarding > /dev/null
 
     echo "[Worker ${i}] Creating VM..."
-    az vm create -g kubernetes \
+    az vm create -g ${RESOURCE_GROUP} \
         -n worker-${i} \
         --image ${UBUNTULTS} \
         --nics worker-${i}-nic \
@@ -209,7 +209,7 @@ done
 List the compute instances in your default compute zone:
 
 ```shell
-az vm list -d -g kubernetes -o table
+az vm list -d -g ${RESOURCE_GROUP} -o table
 ```
 
 > output

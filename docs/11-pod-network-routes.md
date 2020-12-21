@@ -14,8 +14,8 @@ Print the internal IP address and Pod CIDR range for each worker instance:
 
 ```shell
 for instance in worker-0 worker-1; do
-  PRIVATE_IP_ADDRESS=$(az vm show -d -g kubernetes -n ${instance} --query "privateIps" -otsv)
-  POD_CIDR=$(az vm show -g kubernetes --name ${instance} --query "tags" -o tsv)
+  PRIVATE_IP_ADDRESS=$(az vm show -d -g ${RESOURCE_GROUP} -n ${instance} --query "privateIps" -otsv)
+  POD_CIDR=$(az vm show -g ${RESOURCE_GROUP} --name ${instance} --query "tags" -o tsv)
   echo $PRIVATE_IP_ADDRESS $POD_CIDR
 done
 ```
@@ -32,11 +32,11 @@ done
 Create network routes for worker instance:
 
 ```shell
-az network route-table create -g kubernetes -n kubernetes-routes
+az network route-table create -g ${RESOURCE_GROUP} -n kubernetes-routes
 ```
 
 ```shell
-az network vnet subnet update -g kubernetes \
+az network vnet subnet update -g ${RESOURCE_GROUP} \
   -n kubernetes-subnet \
   --vnet-name kubernetes-vnet \
   --route-table kubernetes-routes
@@ -44,7 +44,7 @@ az network vnet subnet update -g kubernetes \
 
 ```shell
 for i in 0 1; do
-az network route-table route create -g kubernetes \
+az network route-table route create -g ${RESOURCE_GROUP} \
   -n kubernetes-route-10-200-${i}-0-24 \
   --route-table-name kubernetes-routes \
   --address-prefix 10.200.${i}.0/24 \
@@ -56,7 +56,7 @@ done
 List the routes in the `kubernetes-vnet`:
 
 ```shell
-az network route-table route list -g kubernetes --route-table-name kubernetes-routes -o table
+az network route-table route list -g ${RESOURCE_GROUP} --route-table-name kubernetes-routes -o table
 ```
 
 > output
